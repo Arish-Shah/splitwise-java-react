@@ -3,10 +3,12 @@ import toast from "react-hot-toast";
 import { http } from "../util/http";
 
 const TOKEN = "token";
+const NAME = "name";
 const EXPIRATION = "tokenExpiration";
 
 const AuthContext = createContext({
   token: null,
+  name: null,
   signup: null,
   signin: null,
   signout: null,
@@ -22,36 +24,42 @@ export function useAuthContext() {
   return authContext;
 }
 
-function saveToken(token) {
-  localStorage.setItem(TOKEN, token);
+function saveToken(data) {
+  localStorage.setItem(TOKEN, data.token);
+  localStorage.setItem(NAME, data.name);
   localStorage.setItem(
     EXPIRATION,
     new Date(Date.now() + 60 * 60 * 1000).toISOString()
   );
 }
 
-function getToken() {
+function getSaved() {
   const token = localStorage.getItem(TOKEN);
+  const name = localStorage.getItem(NAME);
   const expiration = localStorage.getItem(EXPIRATION);
 
   if (token && expiration && new Date(expiration) > new Date()) {
-    return token;
+    return [token, name];
   } else {
     localStorage.removeItem(TOKEN);
     localStorage.removeItem(EXPIRATION);
-    return null;
+    return [null, null];
   }
 }
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(getToken());
+  const [savedToken, savedName] = getSaved();
+
+  const [token, setToken] = useState(savedToken);
+  const [name, setName] = useState(savedName);
 
   const signup = (data) =>
     toast.promise(() => http.post("/auth/signup", data), {
       loading: "Submitting...",
-      success: ({ token }) => {
-        setToken(token);
-        saveToken(token);
+      success: (data) => {
+        setToken(data.token);
+        setName(data.name);
+        saveToken(data.token);
       },
       error: (e) => e.message,
     });
@@ -59,9 +67,10 @@ export function AuthProvider({ children }) {
   const signin = (data) =>
     toast.promise(() => http.post("/auth/signin", data), {
       loading: "Submitting...",
-      success: ({ token }) => {
-        setToken(token);
-        saveToken(token);
+      success: (data) => {
+        setToken(data.token);
+        setName(data.name);
+        saveToken(data.token);
       },
       error: (e) => e.message,
     });
@@ -69,11 +78,12 @@ export function AuthProvider({ children }) {
   const signout = () => {
     setToken(null);
     localStorage.removeItem(TOKEN);
+    localStorage.removeItem(NAME);
     localStorage.removeItem(EXPIRATION);
   };
 
   return (
-    <AuthContext value={{ token, signup, signin, signout }}>
+    <AuthContext value={{ token, name, signup, signin, signout }}>
       {children}
     </AuthContext>
   );

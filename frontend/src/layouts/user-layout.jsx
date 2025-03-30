@@ -17,7 +17,12 @@ export function UserLayout() {
     <div className="flex w-full items-center justify-center">
       <div className="w-full max-w-3xl">
         <Nav />
-        <Outlet />
+        <main className="p-3">
+        <div className="mt-3 w-full rounded-lg bg-white p-3 shadow-sm">
+          <Outlet />
+        </div>
+
+</main>
       </div>
     </div>
   );

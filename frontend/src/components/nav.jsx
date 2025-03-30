@@ -5,8 +5,8 @@ import { Brand } from "./brand";
 export function Nav() {
   const authContext = useAuthContext();
 
-  return <header className="flex justify-between">
-    <nav className="p-3">
+  return <header className="flex justify-between p-3">
+    <nav>
       <Brand size="sm" />
     </nav>
     <ul className="flex gap-4 items-center font-medium">
