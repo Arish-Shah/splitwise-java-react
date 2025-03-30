@@ -25,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public AuthResponse authenticate(User user) {
 		String token = this.jwt.generateToken(user.getId());
-		return new AuthResponse(token, user.getName());
+		return new AuthResponse(token, user.getName(), user.getEmail());
 	}
 
 	@Override

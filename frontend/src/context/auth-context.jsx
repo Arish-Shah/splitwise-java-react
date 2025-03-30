@@ -4,11 +4,13 @@ import { http } from "../util/http";
 
 const TOKEN = "token";
 const NAME = "name";
+const EMAIL = "email";
 const EXPIRATION = "tokenExpiration";
 
 const AuthContext = createContext({
   token: null,
   name: null,
+  email: null,
   signup: null,
   signin: null,
   signout: null,
@@ -27,6 +29,7 @@ export function useAuthContext() {
 function saveToken(data) {
   localStorage.setItem(TOKEN, data.token);
   localStorage.setItem(NAME, data.name);
+  localStorage.setItem(EMAIL, data.email);
   localStorage.setItem(
     EXPIRATION,
     new Date(Date.now() + 60 * 60 * 1000).toISOString()
@@ -36,22 +39,20 @@ function saveToken(data) {
 function getSaved() {
   const token = localStorage.getItem(TOKEN);
   const name = localStorage.getItem(NAME);
+  const email = localStorage.getItem(EMAIL);
   const expiration = localStorage.getItem(EXPIRATION);
 
-  if (token && expiration && new Date(expiration) > new Date()) {
-    return [token, name];
-  } else {
+  if (!expiration || new Date(expiration) < new Date()) {
     localStorage.removeItem(TOKEN);
     localStorage.removeItem(EXPIRATION);
-    return [null, null];
   }
+  return { token, name, email };
 }
 
 export function AuthProvider({ children }) {
-  const [savedToken, savedName] = getSaved();
-
-  const [token, setToken] = useState(savedToken);
-  const [name, setName] = useState(savedName);
+  const [token, setToken] = useState(getSaved().token);
+  const [name, setName] = useState(getSaved().name);
+  const [email, setEmail] = useState(getSaved().email);
 
   const signup = (data) =>
     toast.promise(() => http.post("/auth/signup", data), {
@@ -59,7 +60,8 @@ export function AuthProvider({ children }) {
       success: (data) => {
         setToken(data.token);
         setName(data.name);
-        saveToken(data.token);
+        setEmail(data.email);
+        saveToken(data);
       },
       error: (e) => e.message,
     });
@@ -70,7 +72,8 @@ export function AuthProvider({ children }) {
       success: (data) => {
         setToken(data.token);
         setName(data.name);
-        saveToken(data.token);
+        setEmail(data.email);
+        saveToken(data);
       },
       error: (e) => e.message,
     });
@@ -79,11 +82,12 @@ export function AuthProvider({ children }) {
     setToken(null);
     localStorage.removeItem(TOKEN);
     localStorage.removeItem(NAME);
+    localStorage.removeItem(EMAIL);
     localStorage.removeItem(EXPIRATION);
   };
 
   return (
-    <AuthContext value={{ token, name, signup, signin, signout }}>
+    <AuthContext value={{ token, name, email, signup, signin, signout }}>
       {children}
     </AuthContext>
   );

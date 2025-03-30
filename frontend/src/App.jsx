@@ -5,6 +5,7 @@ import Signin from "./pages/signin";
 import Signup from "./pages/signup";
 import { AuthProvider } from "./context/auth-context";
 import { UserLayout } from "./layouts/user-layout";
+import Transactions from "./pages/transactions";
 
 export default function App() {
   return (
@@ -12,7 +13,7 @@ export default function App() {
       <Routes>
         <Route element={<UserLayout />}>
           <Route index element={<Home />} />
-          <Route path="/transactions" element={<Home />} />
+          <Route path="/transactions" element={<Transactions />} />
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="/signin" element={<Signin />} />

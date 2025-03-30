@@ -1,5 +1,6 @@
 package com.assignment.splitwise.dto;
 
+import java.util.Date;
 import java.util.UUID;
 
 import com.assignment.splitwise.entity.Transaction;
@@ -17,14 +18,12 @@ public class TransactionResponse {
 	private UserResponse payer;
 
 	private PaymentStatus status;
+	
+	private String description;
+
+	private Date createdAt;
 
 	public TransactionResponse() {}
-
-	public TransactionResponse(UUID id, Double amount, UserResponse payer) {
-		this.id = id;
-		this.amount = amount;
-		this.payer = payer;
-	}
 
 	public TransactionResponse(Transaction transaction, User requester, User payer) {
 		this.id = transaction.getId();
@@ -32,6 +31,8 @@ public class TransactionResponse {
 		this.requester = new UserResponse(requester);
 		this.payer = new UserResponse(payer);
 		this.status = transaction.getStatus();
+		this.description = transaction.getDescription();
+		this.createdAt = transaction.getCreatedAt();
 	}
 
 	public UUID getId() {
@@ -72,6 +73,22 @@ public class TransactionResponse {
 
 	public void setStatus(PaymentStatus status) {
 		this.status = status;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Date getCreatedAt() {
+		return this.createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}
 
 }
